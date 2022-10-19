@@ -17,10 +17,8 @@ class Assignment(object):
         - assignment_id: (string) An identifier for the assignment
         - deadline: (datetime) The assignment's deadline
         """
-
         self.assignment_id = assignment_id
         self.deadline = deadline
-
 
 class Student(object):
     """
@@ -38,25 +36,57 @@ class Student(object):
         - first_name, last_name: (string) The student's first and last name.
         - dropped: (boolean) Whether the student dropped this class.
         """
-
         self.cnetid = cnetid
         self.first_name = first_name
         self.last_name = last_name
         self.dropped = dropped
 
+class Team(object):
+    
+    def __init__(self, team_id, students, submissions):
+        '''
+        Constructor for the Team Class
+        '''
+        self.team_id = team_id
+        self.students = students
+        self.submissions = submissions
+    
+    def includes_dropped(self):
+        '''
+        Checks if team comprises one or more students who has dropped
+        '''
+        for student in self.students:
+            if student.dropped:
+                return True
 
-###         YOUR CODE HERE         ###
-###                                ###
-### Implement your Team class here ###
-###                                ###
+        return False
+    
+    def extensions_used(self):
+        '''
+        Checks the number of extensions the team used across its submissions
+        '''
+        total_extensions = 0
 
+        for submission in self.submissions:
+            total_extensions += submission.extensions_used
+        
+        return total_extensions
 
-###         YOUR CODE HERE               ###
-###                                      ###
-### Implement your Submission class here ###
-###                                      ###
+class Submission(object):
+    
+    def __init__(self, assignment, submitted_at, extensions_used):
+        '''
+        Constructor for the Submissions Class
+        '''
+        self.assignment = assignment
+        self.sumbitted_at = submitted_at
+        self.extensions_used = extensions_used
 
-
+    def deadline_delta(self):
+        '''
+        Finds the difference between the submission time and the assignment deadline
+        '''
+        return (self.sumbitted_at - self.assignment.deadline).total_seconds()
 
 def time_str(t):
     """
@@ -160,7 +190,6 @@ def load_data(assignments_file, students_file, teams_file):
 
     return assignments_json, students_json, teams_json
 
-
 def create_assignment_objects(assignments_json):
     """
     Creates Assignment objects from the loaded dataset.
@@ -180,7 +209,6 @@ def create_assignment_objects(assignments_json):
 
     return assignments
 
-
 def create_student_objects(students_json):
     """
     Creates Student objects from the loaded dataset.
@@ -199,7 +227,6 @@ def create_student_objects(students_json):
 
     return students
 
-
 def create_team_objects(teams_json, students, assignments):
     """
     Creates Team objects from the loaded dataset.
@@ -212,13 +239,16 @@ def create_team_objects(teams_json, students, assignments):
                    Assignment objects.
 
     Returns: Dictionary mapping team identifiers to Team objects.
-    """    
+    """ 
     teams = {}
 
-    ### YOUR CODE HERE ###
-
+    for team in teams_json:
+        team_students = [students[cnetid] for cnetid in team["students"]] 
+        team_submissions = [Submission(assignments[submission["assignment_id"]], submission["submitted_at"], \
+                            submission["extensions_used"]) for submission in team["submissions"]]
+        teams[team["team_id"]] = Team(team["team_id"], team_students, team_submissions)
+    
     return teams
-
 
 if __name__ == "__main__":
     assignments_json, students_json, teams_json = load_data("data/assignments.json",
@@ -253,12 +283,3 @@ if __name__ == "__main__":
         avgs = time_str(avg_delta)
 
         print("On average, non-late submissions are made", avgs, "before the deadline")
-        
-
-
-
-
-
-
-
-

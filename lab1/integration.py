@@ -5,19 +5,16 @@ def f(x):
 
     return x*x
 
-
 def integrate():
     ''' Integrate the function f using the rectangle method '''
+    N = 10000
+    width = 1 / N
+    total_area = 0
 
-    ### YOUR CODE GOES HERE
-    #
-    # Replace the following line with your code.
-    # Your code should compute the integral of
-    # function f from 0 to 1 using N rectangles.
-    # You should store the value of the integral in
-    # variable total_area
-    #
-    total_area = None
-
-    ### DO NOT MODIFY THE FOLLOWING LINE!
+    for i in range(N):
+        # Good opportuity to use descriptive variable names (e.g. abstracting
+        # f(i * width) to height)
+        height = f(i * width)
+        total_area += height * width
+    
     return total_area

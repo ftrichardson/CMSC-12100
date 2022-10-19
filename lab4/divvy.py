@@ -401,12 +401,12 @@ class DivvyData(object):
         Returns a dictionary mapping bike identifiers (integer) to
         a duration in seconds (integer)
         """
+        bike_times = {}
 
-        # YOUR CODE HERE
-
-        # Replace {} with the correct return value
-        return {}
-
+        for trip in self.trips:
+            bike_times[trip.bikeid] = bike_times.get(trip.bikeid, 0) + trip.tripduration
+        
+        return bike_times
     
     def get_bike_movements(self):
         """
@@ -426,12 +426,20 @@ class DivvyData(object):
         the bikes that have not been moved at all (those entries
         will just map to an empty list)
         """
-    
-        # YOUR CODE HERE
+        bike_movements = {bikeid: [] for bikeid in self.bikeids}
 
-        # Replace {} with the correct return value
-        return {}
-        
+        bikeids_to_destinations = {}
+
+        for trip in self.trips:
+            if trip.bikeid not in bikeids_to_destinations:
+                bikeids_to_destinations[trip.bikeid] = trip.to_station
+            else:
+                if trip.from_station != bikeids_to_destinations[trip.bikeid]:
+                    bike_movements[trip.bikeid].append((trip.from_station, bikeids_to_destinations[trip.bikeid], \
+                                                        trip.from_station.dpcapacity - bikeids_to_destinations[trip.bikeid].dpcapacity))
+                bikeids_to_destinations[trip.bikeid] = trip.to_station
+
+        return bike_movements
 
 def time_str(t):
     """
@@ -535,4 +543,3 @@ if __name__ == "__main__":
         sys.exit(0)
 
     go(station_filename, trip_filename)
-

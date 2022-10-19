@@ -31,8 +31,8 @@ class Point:
           coordinate in degrees (tuple)
 
         '''
-        ### YOUR CODE HERE ###
-        return None
+        theta = math.degrees(math.atan(self.y / self.x))
+        return (self.distance_to_origin(), theta)
 
     def distance(self, other):
         '''
@@ -43,5 +43,4 @@ class Point:
 
         Returns: distance (float)
         '''
-        ### YOUR CODE HERE ###
-        return None
+        return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)

@@ -1,7 +1,7 @@
 '''
 Linear regression
 
-YOUR NAME HERE
+FLYNN RICHARDSON
 
 Main file for linear regression and model selection.
 '''
@@ -37,6 +37,7 @@ class DataSet(object):
             train_size=self.training_fraction, test_size=None,
             random_state=self.seed)
 
+
 class Model(object):
     '''
     Class for representing a model.
@@ -50,21 +51,32 @@ class Model(object):
             pred_vars: a list of the indices for the columns (of the
               original data array) used in the model.
         '''
+        self.pred_vars = pred_vars
+        self.dep_var = dataset.dependent_var
+        self.beta = util.linear_regression(util.prepend_ones_column(dataset.training_data[:, self.pred_vars]), \
+                                           dataset.training_data[:, self.dep_var])
+        self.R2 = self.calculate_R2(dataset.training_data)
 
-        # REPLACE pass WITH YOUR CODE
-        pass
+
+    def calculate_R2(self, data):
+        '''
+        Calculates the coefficient of determination
+
+        Inputs:
+            data: a subset of a dataset
+        
+        Returns: (int) R^2 value
+        '''
+        y_hat = util.apply_beta(self.beta, util.prepend_ones_column(data[:, self.pred_vars]))
+        y = data[:, self.dep_var]
+
+        return 1 - np.sum((y - y_hat)**2) / np.sum((y - y.mean())**2)
+
 
     def __repr__(self):
         '''
         Format model as a string.
         '''
-
-        # Replace this return statement with one that returns a more
-        # helpful string representation
-        return "!!! You haven't implemented the Model __repr__ method yet !!!"
-
-    ### Additional methods here
-
 
 def compute_single_var_models(dataset):
     '''
@@ -76,9 +88,7 @@ def compute_single_var_models(dataset):
     Returns:
         List of Model objects, each representing a single-variable model
     '''
-
-    # Replace [] with the list of models
-    return []
+    return [Model(dataset, [pred_var]) for pred_var in dataset.pred_vars]
 
 
 def compute_all_vars_model(dataset):
@@ -91,9 +101,7 @@ def compute_all_vars_model(dataset):
     Returns:
         A Model object that uses all the predictor variables
     '''
-
-    # Replace None with a model object
-    return None
+    return Model(dataset, dataset.pred_vars)
 
 
 def compute_best_pair(dataset):
@@ -106,9 +114,17 @@ def compute_best_pair(dataset):
     Returns:
         A Model object for the best bivariate model
     '''
+    best_bivariate_model = None
+    best_R2 = 0
 
-    # Replace None with a model object
-    return None
+    for index, pred_var_one in enumerate(dataset.pred_vars):
+        for pred_var_two in dataset.pred_vars[index + 1:]:
+            new_model = Model(dataset, [pred_var_one, pred_var_two])
+            if new_model.R2 > best_R2:
+                best_R2 = new_model.R2
+                best_bivariate_model = new_model
+    
+    return best_bivariate_model
 
 
 def forward_selection(dataset):
@@ -123,7 +139,24 @@ def forward_selection(dataset):
         A list (of length P) of Model objects. The first element is the
         model where K=1, the second element is the model where K=2, and so on.
     '''
-    return []
+    models = []
+    used_variables = []
+
+    for __, __ in enumerate(dataset.pred_vars):
+        best_model = None
+        best_variable = None
+        best_R2 = 0
+        for pred_var in dataset.pred_vars:
+            if pred_var not in used_variables:
+                new_model = Model(dataset, [pred_var] + used_variables)
+                if new_model.R2 > best_R2:
+                    best_R2 = new_model.R2
+                    best_model = new_model
+                    best_variable = pred_var
+        used_variables.append(best_variable)
+        models.append(best_model)
+    
+    return models
 
 
 def validate_model(dataset, model):
@@ -139,6 +172,4 @@ def validate_model(dataset, model):
     Returns:
         (float) An R2 value
     '''
-
-    # Replace 0.0 with the correct R2 value
-    return 0.0
+    return model.calculate_R2(dataset.testing_data)

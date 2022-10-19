@@ -13,10 +13,14 @@ def find_candidates_from_city(candidates, office_loc):
 
     Returns: list of candidate IDs (strings)
     """
+    cand_IDS = []
+    city, state = office_loc
 
-    ### EXERCISE 1 -- Replace pass with your code
-    pass
+    for candidate in candidates:
+        if candidate['State'] == state and candidate['City'] == city:
+            cand_IDS.append(candidate['Candidate_ID'])
 
+    return cand_IDS
 
 def construct_dict_from_lists(keys, values):
     """
@@ -33,9 +37,7 @@ def construct_dict_from_lists(keys, values):
     # check for repeats in the keys
     assert len(keys) == len(set(keys))
 
-    ### EXERCISE 2 -- Replace pass with your code
-    pass
-
+    return {keys[i]: values[i] for i, __ in enumerate(keys)}
 
 def construct_homestate_dict(candidates):
     """
@@ -48,10 +50,12 @@ def construct_homestate_dict(candidates):
     Returns: dictionary that maps each candidate id (string) to a state
       abbreviation (string)
     """
+    ID_to_state = {}
 
-    ### EXERCISE 3 -- Replace pass with your code
-    pass
-
+    for candidate in candidates:
+        ID_to_state[candidate['Candidate_ID']] = candidate['State']
+    
+    return ID_to_state
 
 def find_unsuccessful_fund_raisers(cand_to_count, threshold):
     """
@@ -66,9 +70,13 @@ def find_unsuccessful_fund_raisers(cand_to_count, threshold):
 
     Returns: list of Candidate IDs.
     """
-    ### EXERCISE 4 -- Replace pass with your code
-    pass
+    cand_IDs_below_threshold = []
 
+    for cand, cnt in cand_to_count.items():
+        if cnt < threshold:
+            cand_IDs_below_threshold.append(cand)
+    
+    return cand_IDs_below_threshold
 
 def construct_cands_by_state(candidates):
     """
@@ -80,6 +88,11 @@ def construct_cands_by_state(candidates):
     Returns: dictionary that maps a state abbreviation (string) to a
      list of dictionaries for candidates from that state.
     """
+    state_to_candidates = {}
 
-    ### EXERCISE 5 -- Replace pass with your code
-    pass
+    for candidate in candidates:
+        if candidate['State'] not in state_to_candidates:
+            state_to_candidates[candidate['State']] = []
+        state_to_candidates[candidate['State']].append(candidate)
+    
+    return state_to_candidates

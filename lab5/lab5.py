@@ -22,30 +22,28 @@ def read_file(filename):
         return labels, data
 
 def var(y):
-    # replace 0.0 with proper return value
-    return 0.0
-
+    N = len(y)
+    return (1 / N) * np.sum((y - y.mean())**2)
 
 def task2(b):
-    ### Replace 0.0 with code to extract the desired slice
     print("rows 0, 1, and 2.")
-    print(0.0)
+    print(b[0:3, :])
     print()
     print("rows 0, 1, and 5")
-    print(0.0)
+    print(b[(0, 1, 5), :])
     print()
     print("columns 0, 1, and 2")
-    print(0.0)
+    print(b[:, 0:3])
     print()
     print("columns 0, 1, and 3")
-    print(0.0)
+    print(b[:, (0, 1, 3)])
     print()
     print("columns 0, 1, and 2 from rows 2 and 3.")
-    print(0.0)
+    print(b[2:4, 0:3])
     print()
 
 def go():
-    city_col_names, city_data = read_file("city_data.csv")
+    __, city_data = read_file("city_data.csv")
 
     graffiti = city_data[:,0]
     garbage = city_data[:,3]
@@ -63,15 +61,15 @@ def go():
 
 
     print("Task 3")
-    ### REPLACE 0.0 with appropriate call to linear regression
-    print("Rodents, Garbage => Crime", 0.0)
+    print("Rodents, Garbage => Crime", linear_regression(prepend_ones_column(city_data[:, 2:4]), city_data[:, 7]))
     print()
     print()
 
 
+    # Must do [0] instead of 0. Extracting one column makes a one-dimensional array, but using []
+    # makes a two-dimensional array, thereby keeping the dimenions
     print("Task 4")
-    ### REPLACE 0.0 with appropriate call to linear regression
-    print("Graffiti => Crime:", 0.0)
+    print("Graffiti => Crime:", linear_regression(prepend_ones_column(city_data[:, [0]]), city_data[:, 7]))
     print()
     print()
 

@@ -1,6 +1,5 @@
 from tree import Tree
 
-
 def sum_cubes(n):
     """
     Recursively calculates the sum of the first n
@@ -15,9 +14,10 @@ def sum_cubes(n):
     This function may not use any loops or list
     comprehensions.
     """
-
-    pass
-
+    if n == 1:
+        return 1
+    else:
+        return n**3 + sum_cubes(n - 1)
 
 def sublists(lst):
     """
@@ -29,9 +29,17 @@ def sublists(lst):
     Returns: (list of list of values) list of all
         sublists of lst.
     """
-
-    pass
-
+    if len(lst) == 0:
+        return [[]]
+    else:
+        sublists_lst = []
+        lst_copy = lst.copy()
+        elem_to_add = lst_copy[0]
+        previous_sublists_lst = sublists(lst_copy[1:])
+        sublists_lst.extend(previous_sublists_lst)
+        for previous_sublist in previous_sublists_lst:
+            sublists_lst.append([elem_to_add] + previous_sublist)
+        return sublists_lst
 
 def min_depth_leaf(tree):
     """
@@ -44,9 +52,13 @@ def min_depth_leaf(tree):
     Returns: (integer) the minimum depth of of a leaf
         in tree.
     """
-
-    pass
-
+    if tree.num_children() == 0:
+        return 0
+    else:
+        min_depths = set()
+        for child in tree.children:
+            min_depths.add(1 + min_depth_leaf(child))
+        return min(min_depths)
 
 def repeated_value(tree):
     """
@@ -60,9 +72,10 @@ def repeated_value(tree):
     node in the tree that has an ancestor with the 
     same value.
     """
-    
-    pass
-
+    if repeated_value_r(tree, set()):
+        return True
+    else:
+        return False
 
 def repeated_value_r(tree, ancestor_values):
     """
@@ -83,5 +96,14 @@ def repeated_value_r(tree, ancestor_values):
         in the input tree that has an ancestor in the
         original tree with the same value.
     """
-    
-    pass
+    if tree.num_children() == 0:
+        return tree.value in ancestor_values
+    else:
+        if tree.value in ancestor_values:
+            return True
+        else:
+            ancestor_values.add(tree.value)
+        for child in tree.children:
+            if repeated_value_r(child, ancestor_values):
+                return True
+        ancestor_values.remove(tree.value)

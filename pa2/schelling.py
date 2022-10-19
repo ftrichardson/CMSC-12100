@@ -30,6 +30,7 @@ CS121: Schelling Model of Housing Segregation
 import click
 import utility
 
+
 def is_satisfied(grid, R, location, sim_sat_range):
     '''
     Determine whether or not the homeowner at a specific location is
@@ -44,15 +45,126 @@ def is_satisfied(grid, R, location, sim_sat_range):
         sim_sat_range (float, float): lower bound and upper bound on
           the range (inclusive) for when the homeowner is satisfied
           with his similarity score.
+
     Returns: bool
     '''
+    (i, j) = location
+    assert grid[i][j] != 'F'
 
-    # Since it does not make sense to call this function on a home
-    # that is for sale, we recommend adding an assertion to verify
-    # that the home is not for sale.
+    S = 0
+    H = 0
 
-    # Replace False with the appropriate return value
-    return False
+    for k in range(max(0, i - R), min(len(grid), i + R + 1)):
+        for l in range(max(0, j - R), min(len(grid), j + R + 1)):
+            if abs(i - k) + abs(j - l) <= R:
+                if grid[k][l] != 'F':
+                    H += 1
+                if grid[k][l] == grid[i][j]:
+                    S += 1
+    
+    similarity_score = S / H
+    return similarity_score >= min(sim_sat_range) and similarity_score <= max(sim_sat_range)
+
+
+def swap_homes(grid, open_location, unsatisfied_homeowner):
+    '''
+    Swaps an unsatisfied homeowner to an unoccupied home
+
+    Inputs:
+        open_location: (tuple) an unoccupied location
+        unsatisfied_homeowner: (tuple) the location of an unsatisfied homeowner
+    '''
+    (i, j) = open_location
+    assert grid[i][j] == 'F'
+    (k, l) = unsatisfied_homeowner
+
+    grid[i][j], grid[k][l] = grid[k][l], grid[i][j]
+
+
+def is_homeowner_relocated(grid, R, sim_sat_range, unsatisfied_homeowner, homes_for_sale, patience):
+    '''
+    Tries to relocate an unsatisfied homeowner to a satisfactory home
+
+    Inputs:
+        grid (list of lists of strings): the grid
+        R (int): neighborhood parameter
+        sim_sat_range (float, float): lower bound and upper bound on
+          the range (inclusive) for when the homeowner is satisfied
+          with his similarity score.
+        unsatisfied_homeowner (int, int): location of unsatisfied homeowner
+        homes_for_sale (list of tuples): a list of locations with homes for sale
+        patience (int): the number of satisfactory homes an unsatisfied homeowner
+           will visit before relocating
+
+    Returns: bool
+    '''
+    assert not is_satisfied(grid, R, unsatisfied_homeowner, sim_sat_range)
+    is_relocated = False
+
+    for open_home in homes_for_sale:
+        swap_homes(grid, open_home, unsatisfied_homeowner)
+        if is_satisfied(grid, R, open_home, sim_sat_range):
+            patience -= 1
+            if patience == 0:
+                homes_for_sale.remove(open_home)
+                homes_for_sale.insert(0, unsatisfied_homeowner)
+                is_relocated = True
+                break
+            swap_homes(grid, unsatisfied_homeowner, open_home)
+        else:
+            swap_homes(grid, unsatisfied_homeowner, open_home)
+    
+    return is_relocated
+
+
+def simulation_wave(grid, R, sim_sat_range, homes_for_sale, patience, homeowner_color):
+    '''
+    Performs a wave (based on homeowner color) of the simulation
+
+    Inputs:
+        grid (list of lists of strings): the grid
+        R (int): neighborhood parameter
+        sim_sat_range (float, float): lower bound and upper bound on
+          the range (inclusive) for when the homeowner is satisfied
+          with his similarity score.
+        homes_for_sale (list of tuples): a list of locations with homes for sale
+        patience (int): the number of satisfactory homes an unsatisfied homeowner
+          is willing to visit before making a decision
+        homeowner_color (string): the color of a homeowner
+        
+    Returns: (int) number of relocations
+    '''
+    num_relocations = 0
+
+    for i, __ in enumerate(grid):
+        for j, __ in enumerate(grid):
+            if grid[i][j] == homeowner_color and not is_satisfied(grid, R, (i, j), sim_sat_range):
+                if is_homeowner_relocated(grid, R, sim_sat_range, (i, j), homes_for_sale, patience):
+                    num_relocations += 1
+    
+    return num_relocations
+
+
+def simulation_step(grid, R, sim_sat_range, homes_for_sale, patience):
+    '''
+    Performs a step of the simulation
+
+    Inputs:
+        grid (list of lists of strings): the grid
+        R (int): neighborhood parameter
+        sim_sat_range (float, float): lower bound and upper bound on
+          the range (inclusive) for when the homeowner is satisfied
+          with his similarity score.
+        homes_for_sale (list of tuples): a list of locations with homes for sale
+        patience (int): the number of satisfactory homes an unsatisfied homeowner
+          is willing to visit before making a decision
+
+    Returns: (int) number of relocations
+    '''
+    num_relocations = 0
+    num_relocations += simulation_wave(grid, R, sim_sat_range, homes_for_sale, patience, 'M')
+    num_relocations += simulation_wave(grid, R, sim_sat_range, homes_for_sale, patience, 'B')
+    return num_relocations
 
 
 def do_simulation(grid, R, sim_sat_range, patience, max_steps, homes_for_sale):
@@ -70,9 +182,16 @@ def do_simulation(grid, R, sim_sat_range, patience, max_steps, homes_for_sale):
 
     Returns: (int) The number of relocations completed.
     '''
+    total_relocations = 0
 
-    # Replace 0 with an appropriate return value
-    return 0
+    for __ in range(max_steps):
+        num_relocations = simulation_step(grid, R, sim_sat_range, homes_for_sale, patience)
+        if num_relocations == 0:
+            break
+        else:
+            total_relocations += num_relocations
+    
+    return total_relocations
 
 
 @click.command(name="schelling")
@@ -115,6 +234,7 @@ def cmd(grid_file, r, sim_lb, sim_ub, patience, max_steps):
         print()
 
     print("Total number of relocations done: " + str(num_relocations))
+
 
 if __name__ == "__main__":
     cmd() # pylint: disable=no-value-for-parameter

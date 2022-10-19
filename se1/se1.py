@@ -1,25 +1,11 @@
-
-
 def add_one_and_multiply(a, x):
     """ Add 1 to a, and multiply by x"""
-
-    ### EXERCISE 1 -- YOUR CODE GOES HERE
-    # Replace "None" with the correct expression
-    r = None
-
-    ### DO NOT MODIFY THE FOLLOWING LINE!
-    return r
+    return (a + 1) * x
 
 
 def within_range(x, lb, ub):
     """ Is x strictly between lb and ub?"""
-
-    ### EXERCISE 2 -- YOUR CODE GOES HERE
-    # Replace "None" with the correct expression
-    r = None
-
-    ### DO NOT MODIFY THE FOLLOWING LINE!
-    return r
+    return x > lb and x < ub
 
 
 def number_string(x):
@@ -27,58 +13,45 @@ def number_string(x):
     Given a number x, produce a string: "POSITIVE", "NEGATIVE", "ZERO"
     (depending on whether the number is positive, negative, or zero)
     """
-
-    ### EXERCISE 3 -- YOUR CODE GOES HERE
-    # Replace the following line with your code.
-    # After running your code, variable s should contain the value
-    # we ask you to compute in this exercise.
-    s = None
-
-    ### DO NOT MODIFY THE FOLLOWING LINE!
-    return s
-
+    if x > 0:
+        return 'POSITIVE'
+    elif x < 0:
+        return 'NEGATIVE'
+    else:
+        return 'ZERO'
+        
 
 def num_divisible(lb, ub, p, q):
     """
     How many numbers between lb and ub (inclusive)
     are divisible by both p and q?
     """
+    p_q_divisible_cnt = 0
 
-    ### EXERCISE 4 -- YOUR CODE GOES HERE
-    # Replace the following line with your code.
-    # After running your code, variable n should contain the value
-    # we ask you to compute in this exercise.
-    n = None
+    for num in range(lb, ub + 1):
+        if num % p == 0 and num % q == 0:
+            p_q_divisible_cnt += 1
 
-    ### DO NOT MODIFY THE FOLLOWING LINE!
-    return n
+    return p_q_divisible_cnt
 
-
+    
 def count_negative(lst):
     """
     Count the number of negative numbers in the list
     """
+    negative_cnt = 0
 
-    ### EXERCISE 5 -- YOUR CODE GOES HERE
-    # Replace the following line with your code.
-    # After running your code, variable n should contain the value
-    # we ask you to compute in this exercise.
-    n = None
+    for num in lst:
+        if num < 0:
+            negative_cnt += 1
 
-    ### DO NOT MODIFY THE FOLLOWING LINE!
-    return n
+    return negative_cnt
 
 
 def negate_list(lst):
     """
     Produce a *new* list with its values negated
     """
-
-    ### EXERCISE 6 -- YOUR CODE GOES HERE
-    # Replace the following line with your code.
-    # After running your code, variable n should contain the value
-    # we ask you to compute in this exercise
-    new_lst = None
-
-    ### DO NOT MODIFY THE FOLLOWING LINE!
-    return new_lst
+    # Format of list comprehension...
+    # [(expression with item) for (item) in (list) if (item meets a condition)]]
+    return [-x for x in lst]

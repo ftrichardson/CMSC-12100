@@ -21,10 +21,13 @@ def count_complaints_about(complaints, company_name):
 
     Returns: count of complaints (int)
     '''
-    # Your code goes here
-    # replace 0 with a suitable return value
-    return 0
+    complaints_cnt = 0
 
+    for complaint in complaints:
+        if complaint['Company'] == company_name:
+            complaints_cnt += 1
+    
+    return complaints_cnt
 
 # Task 2
 def find_companies(complaints):
@@ -37,10 +40,12 @@ def find_companies(complaints):
 
     Returns: (list or set) of companies
     '''
-    # Your code goes here
-    # replace [] with a suitable return value
-    return []
+    companies = set()
 
+    for complaint in complaints:
+        companies.add(complaint['Company'])
+        
+    return companies
 
 # Task 3
 def count_by_state(complaints):
@@ -53,10 +58,12 @@ def count_by_state(complaints):
 
     Returns: (dict) that relates states to complaint number
     '''
-    # Your code goes here
-    # replace {} with a suitable return value
-    return {}
+    cnt_by_state = {}
 
+    for complaint in complaints:
+        cnt_by_state[complaint['State']] = cnt_by_state.get(complaint['State'], 0) + 1
+    
+    return cnt_by_state
 
 # Task 4
 def state_with_most_complaints(cnt_by_state):
@@ -69,10 +76,15 @@ def state_with_most_complaints(cnt_by_state):
 
     Returns: (str) the state with the most complaints
     '''
-    # Your code goes here
-    # replace "" with a suitable return value
-    return ""
+    max_value = float('-inf')
+    most_grumbling_state = None
 
+    for state, cnt in cnt_by_state.items():
+        if cnt > max_value:
+            max_value = cnt
+            most_grumbling_state = state
+    
+    return most_grumbling_state
 
 # Task 5
 def count_by_company_by_state(complaints):
@@ -86,10 +98,16 @@ def count_by_company_by_state(complaints):
 
     Returns: (dict) with count per company per state
     '''
-    # Your code goes here
-    # replace {} with a suitable return value
-    return {}
+    company_to_state_cnts = {}
 
+    for complaint in complaints:
+        company = complaint['Company']
+        state = complaint['State']
+        if company not in company_to_state_cnts:
+            company_to_state_cnts[company] = {}
+        company_to_state_cnts[company][state] = company_to_state_cnts[company].get(state, 0) + 1
+    
+    return company_to_state_cnts
 
 # Task 6
 def complaints_by_company(complaints):
@@ -103,6 +121,11 @@ def complaints_by_company(complaints):
 
     Returns: (dict) mapping the name of the company to a list of complaints
     '''
-    # Your code goes here
-    # replace {} with a suitable return value
-    return {}
+    company_to_complaints = {}
+
+    for complaint in complaints:
+        if complaint['Company'] not in company_to_complaints:
+            company_to_complaints[complaint['Company']] = []
+        company_to_complaints[complaint['Company']].append(complaint)
+    
+    return company_to_complaints

@@ -3,10 +3,67 @@ Short Exercises #4
 """
 SIZE = 3
 
-"""
-Add your Board class here
-""" 
+class Board:
 
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.board = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
+    
+    def valid_move(self, row, col):
+        '''
+        Checks whether a move is valid
+
+        Inputs:
+            row: an integer
+            col: an integer
+        
+        Returns: bool
+        '''
+        return row >= 0 and row < SIZE and col >= 0 and col < SIZE and not self.board[row][col].strip()
+    
+    def move(self, row, col, player):
+        '''
+        Updates the board *in-place*
+
+        Inputs:
+            row: an integer
+            col: an integer
+            player: a Player instance
+        '''
+        self.board[row][col] = player.symbol
+    
+    def winner(self, player):
+        '''
+        Checks whether a player is a winner
+
+        Inputs:
+            player: a Player instance
+        
+        Returns: bool
+        '''
+        for n in range(SIZE):
+            if (self.board[0][n] == player.symbol and self.board[1][n] == player.symbol \
+                and self.board[2][n] == player.symbol) or (self.board[n][0] == player.symbol and self.board[n][1] == player.symbol \
+                and self.board[n][2] == player.symbol):
+                return True
+        
+        if (self.board[0][0] == player.symbol and self.board[1][1] == player.symbol \
+            and self.board[2][2] == player.symbol) or (self.board[0][2] == player.symbol \
+            and self.board[1][1] == player.symbol and self.board[2][0] == player.symbol):
+            return True
+        
+        return False
+    
+    def __repr__(self):
+        '''
+        Produces a string representation of a board
+        '''
+        # Good OOP Design: Always include a __repr__ method when creating classes
+        return "|{}|{}|{}|\n--+-+--\n|{}|{}|{}|\n--+-+--\n|{}|{}|{}|".format(self.board[0][0], \
+                self.board[0][1], self.board[0][2], self.board[1][0], self.board[1][1], self.board[1][2], \
+                self.board[2][0], self.board[2][1], self.board[2][2])
 """
 DO NOT MODIFY THE CODE BELOW
 """
@@ -162,4 +219,3 @@ Run game from the command line
 if __name__ == "__main__":
     g = Game()
     g.play()
-

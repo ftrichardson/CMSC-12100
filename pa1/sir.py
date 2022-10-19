@@ -1,7 +1,7 @@
 '''
 Epidemic modelling
 
-YOUR NAME
+FLYNN RICHARDSON
 
 Functions for running a simple epidemiological simulation
 '''
@@ -23,11 +23,13 @@ def count_infected(city):
     Returns (int): count of the number of people who are
       currently infected
     '''
+    infected_cnt = 0
 
-    # YOUR CODE HERE
+    for person in city:
+        if person[0] == 'I':
+            infected_cnt += 1
 
-    # REPLACE -1 WITH THE APPROPRIATE INTEGER
-    return -1
+    return infected_cnt
 
 
 def has_an_infected_neighbor(city, position):
@@ -42,15 +44,16 @@ def has_an_infected_neighbor(city, position):
     Returns:
       True, if the person has an infected neighbor, False otherwise.
     '''
-
-    # This function should only be called when the person at position
-    # is susceptible to infection.
-    assert city[position] == "S"
-
-    # YOUR CODE HERE
-
-    # REPLACE None WITH THE APPROPRIATE BOOLEAN VALUE
-    return None
+    # General Note: Watch out for edge cases when writing code"
+    # Cannot access position of a list such that position < 0 or position >= len(lst)
+    if len(city) == 1:
+        return False
+    elif position == 0:
+        return city[position + 1][0] == 'I'
+    elif position == len(city) - 1:
+        return city[position - 1][0] == 'I'
+    else:
+        return city[position - 1][0] == 'I' or city[position + 1][0] == 'I'
 
 
 def advance_person_at_position(city, position, days_contagious):
@@ -65,11 +68,21 @@ def advance_person_at_position(city, position, days_contagious):
 
     Returns: (string) disease state of the person after one day
     '''
-
-    # YOUR CODE HERE
-
-    # REPLACE None WITH THE APPROPRIATE STRING
-    return None
+    if city[position] == 'S':
+        if has_an_infected_neighbor(city, position):
+            return 'I0'
+        else:
+            return 'S'
+    elif city[position][0] == 'I':
+        days_infected = int(city[position][1:])
+        if days_infected + 1 < days_contagious:
+            return 'I' + str(days_infected + 1)
+        else:
+            return 'R'
+    elif city[position] == 'R':
+        return 'R'
+    else:
+        return 'V'
 
 
 def simulate_one_day(starting_city, days_contagious):
@@ -84,11 +97,14 @@ def simulate_one_day(starting_city, days_contagious):
     Returns:
       new_city (list): disease state of the city after one day
     '''
+    # It is better to create a new list than make a copy of starting city
+    # because of algorithmic complexity 
+    new_city = []
 
-    # YOUR CODE HERE
-
-    # REPLACE None WITH THE APPROPRIATE LIST OF STRINGS
-    return None
+    for position, __ in enumerate(starting_city):
+        new_city.append(advance_person_at_position(starting_city, position, days_contagious))
+    
+    return new_city
 
 
 def run_simulation(starting_city, days_contagious,
@@ -107,12 +123,17 @@ def run_simulation(starting_city, days_contagious,
     Returns tuple (list of strings, int): the final state of the city
       and the number of days actually simulated.
     '''
+    days_simulated = 0
+    # When using a seed, must call random.seed() before any randomizing 
+    # function or calling functions that use a randomizing function
+    random.seed(random_seed) 
+    vaccinated_city = vaccinate_city(starting_city, vaccine_effectiveness)
 
-    # YOUR CODE HERE
-
-    # REPLACE (None, None) WITH THE APPROPRIATE TUPLE
-    #  (city, number of days simulated)
-    return (None, None)
+    while count_infected(vaccinated_city):
+        vaccinated_city = simulate_one_day(vaccinated_city, days_contagious)
+        days_simulated += 1
+    
+    return (vaccinated_city, days_simulated)
 
 
 def vaccinate_city(starting_city, vaccine_effectiveness):
@@ -128,11 +149,18 @@ def vaccinate_city(starting_city, vaccine_effectiveness):
     Returns:
       new_city (list): state of the city after vaccinating everyone in the city
     '''
+    vaccinated_city = []
 
-    # YOUR CODE HERE
-
-    # REPLACE None WITH THE APPROPRIATE LIST OF STRINGS
-    return None
+    for person in starting_city:
+        if person == 'S':
+            if random.random() < vaccine_effectiveness:
+                vaccinated_city.append('V')
+            else:
+                vaccinated_city.append('S')
+        else: # This needs to be else, otherwise I'd be appending 'S' twice to the list
+            vaccinated_city.append(person)
+    
+    return vaccinated_city
 
 
 def calc_avg_days_to_zero_infections(
@@ -160,11 +188,14 @@ def calc_avg_days_to_zero_infections(
     '''
     assert num_trials > 0
 
-    # YOUR CODE HERE
+    total_infections = 0
 
-    # REPLACE -1.0 WITH THE APPROPRIATE FLOATING POINT VALUE
-    return -1.0
-
+    # Do not name variables that are unused in a function
+    for __ in range(num_trials):
+        total_infections += run_simulation(starting_city, days_contagious, random_seed, vaccine_effectiveness)[1]
+        random_seed += 1
+    
+    return total_infections / num_trials
 
 ################ Do not change the code below this line #######################
 

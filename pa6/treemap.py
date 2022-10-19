@@ -1,12 +1,14 @@
 '''
 CS 121: PA 6 - Avian Biodiversity Treemap
 
-YOUR NAME HERE
+FLYNN RICHARDSON
 
 Code for constructing a treemap.
 '''
 
 import json
+import re
+from tkinter.tix import Tree
 import click
 import tree
 
@@ -34,9 +36,14 @@ def compute_internal_values(t):
         The return value will be the value of the root of t (that is,
         t.value)
     '''
-
-    # REPLACE pass WITH YOUR CODE
-    pass
+    if t.num_children() == 0:
+        return t.value
+    else:
+        aggregate_child_values = 0
+        for child in t.children:
+            aggregate_child_values += compute_internal_values(child)
+        t.value = aggregate_child_values
+        return t.value
 
 
 def compute_paths(t, prefix=()):
@@ -58,9 +65,9 @@ def compute_paths(t, prefix=()):
         Nothing. The input tree t should be modified to contain a path
             attribute for all nodes.
     '''
-
-    # REPLACE pass WITH YOUR CODE
-    pass
+    t.path = prefix
+    for child in t.children:
+        compute_paths(child, prefix + (t.key, ))
 
 
 class Rectangle:
@@ -92,6 +99,65 @@ class Rectangle:
         return str(self)
 
 
+def calculate_distortion(row_layout):
+    '''
+    Computes the distortion of a row
+
+    Inputs:
+        row_layout: list of pairs (rec, t), where rec is a Rectangle, and
+            t is the Tree that Rectangle corresponds to
+    
+    Returns: (float) distortion / aspect ratio
+    '''
+    return max([max(rec.height, rec.width) / min(rec.height, rec.width) for rec, __ in row_layout])
+
+
+def compute_rectangles_h(tree_list, bounding_rec):
+    '''
+    Helper to compute rectangles
+
+    Inputs:
+        tree_list: a sorted list of the children of a tree
+        bounding_rec: the bounding Rectangle
+    
+    Returns: a list of Rectangle objects
+    '''
+    if len(tree_list) == 0:
+        return []
+
+    rectangles = []
+    total_sum = sum([child.value for child in tree_list])
+
+    best_row_distortion = float('inf')
+    best_row_layout = None
+    best_leftover = None
+    row_index = 0
+
+    for k, __ in enumerate(tree_list):
+        row_layout, leftover = compute_row(bounding_rec, tree_list[:k + 1], total_sum)
+        current_distortion = calculate_distortion(row_layout)
+        if current_distortion <= best_row_distortion:
+            best_row_distortion = current_distortion
+            best_row_layout = row_layout
+            best_leftover = leftover
+            row_index += 1
+        else:
+            break
+        
+    for rec, t in best_row_layout:
+        if t.num_children() == 0:
+            rec.label = t.key
+            rec.color_code = t.path
+            rectangles.append(rec)
+        else:
+            rectangles.extend(compute_rectangles_h(sorted_trees([child for child in t.children]), rec))
+
+    remaining_tree_list = tree_list[row_index:]
+    rectangles.extend(compute_rectangles_h(remaining_tree_list, best_leftover))
+    
+    return rectangles
+
+
 def compute_rectangles(t, bounding_rec_width=1.0, bounding_rec_height=1.0):
     '''
     Computes the rectangles for drawing a treemap of the provided tree.
@@ -103,10 +169,10 @@ def compute_rectangles(t, bounding_rec_width=1.0, bounding_rec_height=1.0):
 
     Returns: a list of Rectangle objects.
     '''
-
-    # REPLACE pass WITH YOUR CODE
-    pass
-
+    compute_internal_values(t)
+    compute_paths(t)
+    bounding_rec = Rectangle((0.0, 0.0), (bounding_rec_width, bounding_rec_height), t.key, t.path)
+    return compute_rectangles_h(sorted_trees([child for child in t.children]), bounding_rec)
 
 #############################
 #                           #

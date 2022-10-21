@@ -1,0 +1,3 @@
+# CMSC-12100
+
+This course is the first in a three-quarter sequence that teaches computational thinking and skills to students in the sciences, mathematics, economics, etc. The course will cover abstraction and decomposition, simple modeling, basic algorithms, and programming in Python. Applications from a wide variety of fields serve both as examples in lectures and as the basis for programming assignments. In recent offerings, students have written programs to simulate a model of housing segregation, determine the number of machines needed at a polling place, and analyze tweets from presidential debates. Students can find more information about this course at http://bit.ly/cmsc12100-aut-20.
